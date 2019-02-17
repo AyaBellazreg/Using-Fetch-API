@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Using Fetch</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+</head>
+<body>
+    
+   <div class="container">
+       <h1 class="mt-3">Fetch API sample</h1>
+       <hr>
+       <button class="btn btn-primary" id="getPosts">
+            Get Posts
+       </button>
+
+       <form action="">
+           <div class="form-group">
+               <label for="title" class="mt-3">Title:</label>
+               <input type="text" id="title" class="form-control">
+           </div>
+           <div class="form-group">
+               <label for="body">Content:</label>
+               <textarea id="body" class="form-control"></textarea>
+               <input type="submit" class="btn btn-danger mt-3" id="submitPost">
+           </div>
+       </form>
+
+       <div id="posts"></div>
+   </div>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+
+    <script>
+    document.getElementById('getPosts').addEventListener('click', getPosts);
+    document.getElementById('submitPost').addEventListener('click', submitPost);
+
+    //submitting a post
+    function submitPost(e){
+      e.preventDefault();
+
+      let title = document.getElementById('title').value;
+      let body = document.getElementById('body').value;
+
+      fetch('https://jsonplaceholder.typicode.com/posts', {
+        method:'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-type':'application/json'
+        },
+        body:JSON.stringify({title:title, body:body})
+      })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+    }
+
+    //getting posts and filtering 
+    function getPosts(){
+        fetch("https://jsonplaceholder.typicode.com/posts")
+        .then((res=>{
+            return res.json()
+        }))
+        .then((data=>{
+           let output = "<h3>Posts:</h3>"+
+                       "<div class='form-group'>"+
+                       "<input type='text' id='search' class='form-control' placeholder='search by title or ID..'>"+
+                       "</div>";
+            data.forEach(post => {
+                output += `
+            <ul class="list-group mb-3" id="${post.id}">
+              <li class="list-group-item"><strong>ID:</strong> ${post.id}</li>
+              <li class="list-group-item"><strong>Title:</strong> ${post.title}</li>
+              <li class="list-group-item"><strong>Body:</strong> ${post.body}</li>
+            </ul>
+          `;
+            })
+
+            document.getElementById('posts').innerHTML = output;
+            //filtering function
+            document.getElementById('search').addEventListener('keyup', search);
+                
+            function search(){
+                let value = document.getElementById('search').value;
+                data.forEach(post=>{
+                            if((post.id == value)||(post.title.indexOf(value) > -1)||(value == '')){
+                            document.getElementById(post.id).style.display = 'block';
+                                
+                            }
+                            else{
+                                document.getElementById(post.id).style.display = 'none';
+                            }
+  
+  
+                })
+            }
+            
+        }))
+    }
+
+    </script>
+
+</body>
+</html>
